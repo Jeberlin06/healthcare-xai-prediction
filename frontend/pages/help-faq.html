@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & FAQ - HealthAI XAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .faq-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color, #dee2e6);
+        }
+        .faq-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .faq-summary {
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            list-style: none;
+        }
+        .faq-summary::-webkit-details-marker {
+            display: none;
+        }
+        .faq-summary i {
+            color: var(--primary, #0d6efd);
+            transition: transform 0.2s ease;
+        }
+        details[open] .faq-summary i {
+            transform: rotate(90deg);
+        }
+        .faq-content {
+            margin-top: 0.75rem;
+            color: var(--text-muted, #6c757d);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            padding-left: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item active"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <div class="main-content">
+        <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2 style="margin: 0;">Help & Frequently Asked Questions</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary"><i class="fa-solid fa-moon"></i> Toggle Dark Mode</button>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="card">
+                <details class="faq-item">
+                    <summary class="faq-summary">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>How does the XGBoost model calculate disease risk?</span>
+                    </summary>
+                    <p class="faq-content">
+                        The model takes clinical observation inputs and passes them through trained decision tree ensembles to evaluate log-odds risk probabilities against threshold baselines.
+                    </p>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-summary">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Is my uploaded batch CSV data kept secure?</span>
+                    </summary>
+                    <p class="faq-content">
+                        Yes, all batch inference requests are processed locally in-memory on your server instance and are not shared with external third parties.
+                    </p>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-summary">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Can I export PDF reports for patient records?</span>
+                    </summary>
+                    <p class="faq-content">
+                        Yes, navigate to the <strong>Doctor Report</strong> tab and click <strong>Print / Save PDF</strong> to export complete clinical summaries.
+                    </p>
+                </details>
+            </div>
+        </div>
+    </div>
+    <script src="../js/main.js"></script>
+</body>
+</html>

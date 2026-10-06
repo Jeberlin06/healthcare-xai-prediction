@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Records - HealthAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS CDN for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .records-table th, .records-table td {
+            padding: 0.75rem 0.85rem;
+            border: 1px solid var(--border-color, #dee2e6);
+            text-align: left;
+        }
+        .records-table th {
+            background-color: var(--bg-main, #f8f9fa);
+        }
+        
+        /* Badge Styles: Keep text on a single line */
+        .badge {
+            padding: 0.35rem 0.65rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            display: inline-block;
+            text-align: center;
+        }
+        .badge-high { background-color: #f8d7da; color: #842029; }
+        .badge-mod { background-color: #fff3cd; color: #664d03; }
+        .badge-low { background-color: #d1e7dd; color: #0f5132; }
+
+        /* Action Toolbar Alignment */
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .action-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .search-bar {
+            padding: 0.55rem 0.75rem;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            width: 260px;
+            font-size: 0.875rem;
+        }
+        .btn-excel {
+            background-color: #198754;
+            color: #fff;
+            border: 1px solid #198754;
+            padding: 0.55rem 0.85rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            height: 38px;
+            box-sizing: border-box;
+            transition: background-color 0.2s ease;
+        }
+        .btn-excel:hover {
+            background-color: #157347;
+        }
+        .btn-clear {
+            background-color: transparent;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+            padding: 0.55rem 0.85rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            height: 38px;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        .btn-clear:hover {
+            background-color: #dc3545;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item active"><a href="patient-records.html" class="active"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2>Patient Assessment Records</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary">
+                <i class="fa-solid fa-moon"></i> Toggle Dark Mode
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="card">
+                <div class="card-header-flex">
+                    <h3 style="margin: 0;"><i class="fa-solid fa-id-card-clip"></i> Evaluated Patient History</h3>
+                    <div class="action-bar-container">
+                        <input type="text" id="searchInput" class="search-bar" placeholder="Search by name, ID, or condition...">
+                        <button id="exportExcelBtn" class="btn-excel">
+                            <i class="fa-solid fa-file-excel"></i> Export Excel
+                        </button>
+                        <button id="clearRecordsBtn" class="btn-clear">
+                            <i class="fa-solid fa-trash"></i> Clear All Records
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Patient Name</th>
+                                <th>Patient ID</th>
+                                <th>Assessment Type</th>
+                                <th>Risk Score</th>
+                                <th>Classification</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTableBody">
+                            <tr>
+                                <td colspan="8" style="text-align: center; color: var(--text-muted, #6c757d);">
+                                    Loading patient records...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tableBody = document.getElementById("recordsTableBody");
+            const searchInput = document.getElementById("searchInput");
+            const clearRecordsBtn = document.getElementById("clearRecordsBtn");
+            const exportExcelBtn = document.getElementById("exportExcelBtn");
+
+            // Default mock records matching your screenshot
+            const mockRecords = [
+                { patientName: "Banu", patientId: "PAT-046", disease: "Chronic Kidney Disease", riskScore: 99, riskLevel: "High Risk", date: "2026-10-02" },
+                { patientName: "Smith", patientId: "PAT-045", disease: "Coronary Heart Disease", riskScore: 80, riskLevel: "High Risk", date: "2026-10-02" },
+                { patientName: "Jane", patientId: "PAT-044", disease: "Type 2 Diabetes Risk", riskScore: 99, riskLevel: "High Risk", date: "2026-10-02" },
+                { patientName: "Patient 5", patientId: "PAT-005", disease: "Type 2 Diabetes Risk", riskScore: 18, riskLevel: "Low Risk", date: "2026-10-02" },
+                { patientName: "Patient 4", patientId: "PAT-004", disease: "Type 2 Diabetes Risk", riskScore: 45, riskLevel: "Moderate Risk", date: "2026-10-02" },
+                { patientName: "Patient 3", patientId: "PAT-003", disease: "Type 2 Diabetes Risk", riskScore: 53, riskLevel: "Moderate Risk", date: "2026-10-02" }
+            ];
+
+            // Load records from localStorage or seed with default list
+            let records = JSON.parse(localStorage.getItem("patientRecords"));
+            if (!records || records.length === 0) {
+                records = mockRecords;
+                localStorage.setItem("patientRecords", JSON.stringify(records));
+            }
+
+            let activeFilteredRecords = [];
+
+            function renderRecords(filterText = "") {
+                activeFilteredRecords = records.filter(item => {
+                    const name = (item.patientName || item.patient_name || "").toLowerCase();
+                    const id = (item.patientId || item.patient_id || item.id || "").toLowerCase();
+                    const disease = (item.disease || item.assessmentType || "").toLowerCase();
+                    const search = filterText.toLowerCase();
+                    return name.includes(search) || id.includes(search) || disease.includes(search);
+                });
+
+                if (activeFilteredRecords.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: var(--text-muted, #6c757d);">
+                                No patient records found.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tableBody.innerHTML = activeFilteredRecords.map((item, idx) => {
+                    const name = item.patientName || item.patient_name || "Anonymous Patient";
+                    const id = item.patientId || item.patient_id || item.id || `PAT-${String(idx + 1).padStart(3, '0')}`;
+                    const disease = item.disease || item.assessmentType || "Clinical Diagnostic";
+                    const score = item.riskScore ?? item.risk_probability ?? 0;
+                    const classification = item.riskLevel || item.classification || "Evaluated";
+                    const dateStr = item.date || item.timestamp || new Date().toLocaleDateString();
+
+                    let badgeClass = "badge-low";
+                    const clsLower = String(classification).toLowerCase();
+                    if (clsLower.includes("high")) badgeClass = "badge-high";
+                    else if (clsLower.includes("mod")) badgeClass = "badge-mod";
+
+                    return `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td><strong>${name}</strong></td>
+                            <td><code>${id}</code></td>
+                            <td>${disease}</td>
+                            <td><strong>${score}%</strong></td>
+                            <td><span class="badge ${badgeClass}">${classification}</span></td>
+                            <td>${dateStr}</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="viewDiagnosticResult(${idx})">
+                                    <i class="fa-solid fa-file-lines"></i> View Report
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+            }
+
+            // Export to Excel
+            exportExcelBtn.addEventListener("click", () => {
+                if (activeFilteredRecords.length === 0) {
+                    alert("No patient records available to export.");
+                    return;
+                }
+
+                const excelData = activeFilteredRecords.map((item, idx) => ({
+                    "S.No": idx + 1,
+                    "Patient Name": item.patientName || item.patient_name || "Anonymous Patient",
+                    "Patient ID": item.patientId || item.patient_id || item.id || `PAT-${String(idx + 1).padStart(3, '0')}`,
+                    "Assessment Type": item.disease || item.assessmentType || "Clinical Diagnostic",
+                    "Risk Score": `${item.riskScore ?? item.risk_probability ?? 0}%`,
+                    "Classification": item.riskLevel || item.classification || "Evaluated",
+                    "Date": item.date || item.timestamp || new Date().toLocaleDateString()
+                }));
+
+                const worksheet = XLSX.utils.json_to_sheet(excelData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Patient Records");
+
+                const max_width = excelData.reduce((w, r) => Math.max(w, r["Patient Name"].length), 10);
+                worksheet["!cols"] = [
+                    { wch: 6 },  
+                    { wch: Math.max(max_width, 18) }, 
+                    { wch: 14 }, 
+                    { wch: 25 }, 
+                    { wch: 12 }, 
+                    { wch: 16 }, 
+                    { wch: 14 }  
+                ];
+
+                XLSX.writeFile(workbook, `Patient_Assessment_Records_${new Date().toISOString().split('T')[0]}.xlsx`);
+            });
+
+            // Search Filter
+            searchInput.addEventListener("input", (e) => {
+                renderRecords(e.target.value);
+            });
+
+            // Clear All Records
+            clearRecordsBtn.addEventListener("click", () => {
+                if (confirm("Are you sure you want to clear all patient records?")) {
+                    localStorage.removeItem("patientRecords");
+                    records = [];
+                    renderRecords();
+                }
+            });
+
+            // Redirect to Diagnosis Result Page
+            window.viewDiagnosticResult = function(index) {
+                const item = activeFilteredRecords[index];
+                if (!item) return;
+
+                const selectedData = {
+                    patient_name: item.patientName || item.patient_name,
+                    patient_id: item.patientId || item.patient_id || item.id,
+                    disease: item.disease || item.assessmentType,
+                    riskScore: item.riskScore ?? item.risk_probability,
+                    riskLevel: item.riskLevel || item.classification,
+                    timestamp: item.timestamp || item.date || new Date().toLocaleDateString(),
+                    biomarkers: item.biomarkers || [
+                        { name: "Risk Score Probability", impact: `${item.riskScore}%` }
+                    ]
+                };
+
+                localStorage.setItem("latestResult", JSON.stringify(selectedData));
+                window.location.href = "diagnosis-result.html";
+            };
+
+            renderRecords();
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

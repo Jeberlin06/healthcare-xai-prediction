@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - HealthAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <!-- Config File (Contains EmailJS keys) -->
+    <script src="../js/config.js"></script>
+
+    <style>
+        .contact-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-color, #333);
+        }
+
+        .form-control {
+            padding: 0.65rem 0.85rem;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .contact-info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .contact-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background-color: #dbeafe;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .alert-box {
+            padding: 0.85rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item active"><a href="contact.html" class="active"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2>Contact Support & Inquiries</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary">
+                <i class="fa-solid fa-moon"></i> Toggle Dark Mode
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="contact-container">
+                
+                <!-- Contact Form Card -->
+                <div class="card">
+                    <h3 style="margin-top: 0; font-size: 1.15rem; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-paper-plane"></i> Send Us a Message
+                    </h3>
+
+                    <div id="statusAlert" class="alert-box"></div>
+
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="from_name">Full Name</label>
+                            <input type="text" id="from_name" name="from_name" class="form-control" placeholder="Dr. Alex Morgan" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reply_to">Email Address</label>
+                            <input type="email" id="reply_to" name="reply_to" class="form-control" placeholder="alex.morgan@hospital.org" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" class="form-control" placeholder="Clinical Model Integration Inquiry" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" class="form-control" rows="5" placeholder="Write your message or inquiry here..." required></textarea>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%;">
+                            <i class="fa-solid fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Contact Information Card -->
+                <div class="card">
+                    <h3 style="margin-top: 0; font-size: 1.15rem; margin-bottom: 1.25rem;">
+                        <i class="fa-solid fa-circle-info"></i> Support Information
+                    </h3>
+
+                    <div class="contact-info-item">
+                        <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+                        <div>
+                            <strong style="display: block; font-size: 0.95rem;">HealthAI Research Lab</strong>
+                            <span style="font-size: 0.85rem; color: #64748b;">Clinical Informatics Center, Suite 402</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-item">
+                        <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
+                        <div>
+                            <strong style="display: block; font-size: 0.95rem;">Email Support</strong>
+                            <span style="font-size: 0.85rem; color: #64748b;">support@healthai-xai.org</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-item">
+                        <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
+                        <div>
+                            <strong style="display: block; font-size: 0.95rem;">Telephone</strong>
+                            <span style="font-size: 0.85rem; color: #64748b;">+1 (800) 555-XAI-HEALTH</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color, #e2e8f0); padding-top: 1rem;">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Office Hours</h4>
+                        <p style="font-size: 0.85rem; color: #64748b; margin: 0;">Monday - Friday: 8:00 AM - 6:00 PM EST</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Safely initialize EmailJS from config object
+            if (typeof EMAILJS_CONFIG !== 'undefined' && EMAILJS_CONFIG.PUBLIC_KEY) {
+                emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+            } else {
+                console.warn("EMAILJS_CONFIG not found or PUBLIC_KEY missing. Check js/config.js.");
+            }
+
+            const contactForm = document.getElementById("contactForm");
+            const submitBtn = document.getElementById("submitBtn");
+            const statusAlert = document.getElementById("statusAlert");
+
+            contactForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                if (typeof EMAILJS_CONFIG === 'undefined' || !EMAILJS_CONFIG.SERVICE_ID || !EMAILJS_CONFIG.TEMPLATE_ID) {
+                    showAlert("Configuration error: EmailJS keys missing from js/config.js", false);
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sending...`;
+
+                emailjs.sendForm(
+                    EMAILJS_CONFIG.SERVICE_ID,
+                    EMAILJS_CONFIG.TEMPLATE_ID,
+                    contactForm
+                ).then(() => {
+                    showAlert("Thank you! Your message has been sent successfully.", true);
+                    contactForm.reset();
+                }).catch((error) => {
+                    console.error("EmailJS Error:", error);
+                    showAlert("Failed to send message. Please check your credentials or try again.", false);
+                }).finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Send Message`;
+                });
+            });
+
+            function showAlert(msg, isSuccess) {
+                statusAlert.innerText = msg;
+                statusAlert.className = `alert-box ${isSuccess ? 'alert-success' : 'alert-error'}`;
+                statusAlert.style.display = "block";
+            }
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostics Result - HealthAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        .result-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+
+        /* Report Header with System Logo */
+        .report-brand-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.25rem;
+            border-bottom: 2px solid #2563eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .report-brand-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .report-brand-meta {
+            text-align: right;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* Structured Patient Details Grid */
+        .patient-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            background-color: #f8fafc;
+            padding: 1.25rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+
+        .patient-detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .patient-detail-item label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .patient-detail-item span {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .risk-banner {
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.75rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border-left: 5px solid #2563eb;
+        }
+
+        .risk-banner span {
+            color: #2563eb;
+            font-weight: 800;
+        }
+
+        .biomarker-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background-color: #ffffff;
+        }
+
+        .biomarker-table th, .biomarker-table td {
+            padding: 0.9rem 1rem;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .biomarker-table th {
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: #334155;
+            font-size: 0.9rem;
+        }
+
+        .disclaimer-text {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 2.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px dashed #cbd5e1;
+        }
+
+        .action-button-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Print / PDF Specific Rule Adjustments */
+        @media print {
+            body {
+                background-color: #fff !important;
+                color: #000 !important;
+            }
+            .sidebar, header, .action-button-group, #theme-toggle, #nav-toggle {
+                display: none !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .result-container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+            .patient-details-grid, .biomarker-table th, .risk-banner {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item active"><a href="diagnosis-result.html" class="active"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2>Clinical Diagnostic Assessment</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary">
+                <i class="fa-solid fa-moon"></i> Toggle Dark Mode
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Printable / PDF Target Container -->
+            <div class="result-container" id="reportContent">
+                
+                <!-- Report Top Header with Logo -->
+                <div class="report-brand-header">
+                    <div class="report-brand-logo">
+                        <i class="fa-solid fa-heart-pulse"></i> HealthAI XAI
+                    </div>
+                    <div class="report-brand-meta">
+                        <div><strong>Explainable Clinical Assessment</strong></div>
+                        <div id="reportGenDate">Date: 2026-10-02</div>
+                    </div>
+                </div>
+
+                <!-- Structured Patient & Disease Grid -->
+                <div class="patient-details-grid">
+                    <div class="patient-detail-item">
+                        <label>Patient Name</label>
+                        <span id="patientNameDisplay">Smith</span>
+                    </div>
+                    <div class="patient-detail-item">
+                        <label>Patient ID</label>
+                        <span id="patientIdDisplay">PAT-045</span>
+                    </div>
+                    <div class="patient-detail-item">
+                        <label>Assessment Condition</label>
+                        <span id="diseaseTitle">Coronary Heart Disease</span>
+                    </div>
+                    <div class="patient-detail-item">
+                        <label>Risk Classification</label>
+                        <div>
+                            <span id="riskBadge" style="background-color: #f8d7da; color: #842029; font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 6px; font-weight: 700; display: inline-block;">
+                                High Risk
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Score Banner -->
+                <div class="risk-banner">
+                    Calculated Risk Score: <span id="riskScoreVal">80%</span>
+                </div>
+
+                <h3>Primary Clinical Biomarkers (SHAP Impact)</h3>
+                <table class="biomarker-table">
+                    <thead>
+                        <tr>
+                            <th>Clinical Feature / Biomarker</th>
+                            <th>Impact / Measured Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="biomarkerTableBody">
+                        <!-- Populated dynamic rows -->
+                    </tbody>
+                </table>
+
+                <div class="disclaimer-text">
+                    This report was automatically generated using HealthAI Explainable Diagnostics System (XAI).<br>
+                    Confidential Medical Record — For Clinical Interpretation Only.
+                </div>
+            </div>
+
+            <!-- Action Toolbar -->
+            <div class="action-button-group">
+                <button id="downloadPdfBtn" class="btn btn-primary" style="padding: 0.65rem 1.25rem; font-weight: 600;">
+                    <i class="fa-solid fa-file-arrow-down"></i> Download PDF Report
+                </button>
+                <button id="printReportBtn" class="btn btn-secondary" style="padding: 0.65rem 1.25rem; font-weight: 600;">
+                    <i class="fa-solid fa-print"></i> Print Report
+                </button>
+                <a href="patient-records.html" class="btn btn-secondary" style="padding: 0.65rem 1.25rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <i class="fa-solid fa-id-card-clip"></i> View All Records
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const diseaseTitle = document.getElementById("diseaseTitle");
+            const patientNameDisplay = document.getElementById("patientNameDisplay");
+            const patientIdDisplay = document.getElementById("patientIdDisplay");
+            const riskBadge = document.getElementById("riskBadge");
+            const riskScoreVal = document.getElementById("riskScoreVal");
+            const biomarkerTableBody = document.getElementById("biomarkerTableBody");
+            const reportGenDate = document.getElementById("reportGenDate");
+
+            // Set current date
+            const today = new Date().toISOString().split('T')[0];
+            reportGenDate.innerText = `Date: ${today}`;
+
+            // Fallback default biomarker data matching Coronary Heart Disease
+            const defaultData = {
+                patient_name: "Smith",
+                patient_id: "PAT-045",
+                disease: "Coronary Heart Disease",
+                riskScore: 80,
+                riskLevel: "High Risk",
+                biomarkers: [
+                    { name: "Resting Blood Pressure", impact: "170 mmHg" },
+                    { name: "Serum Cholesterol", impact: "120 mg/dL" },
+                    { name: "Patient Age", impact: "67 years" },
+                    { name: "Max Heart Rate", impact: "120 bpm" }
+                ]
+            };
+
+            // Read latest dynamic result from localStorage or use default
+            const latestData = JSON.parse(localStorage.getItem("latestResult")) || defaultData;
+
+            // Populate text elements synchronously
+            diseaseTitle.innerText = latestData.disease || "Coronary Heart Disease";
+            patientNameDisplay.innerText = latestData.patient_name || "Smith";
+            patientIdDisplay.innerText = latestData.patient_id || "PAT-045";
+            riskScoreVal.innerText = `${latestData.riskScore ?? 80}%`;
+            
+            const level = latestData.riskLevel || "High Risk";
+            riskBadge.innerText = level;
+
+            if (level.toLowerCase().includes("high")) {
+                riskBadge.style.backgroundColor = "#f8d7da";
+                riskBadge.style.color = "#842029";
+            } else if (level.toLowerCase().includes("mod")) {
+                riskBadge.style.backgroundColor = "#fff3cd";
+                riskBadge.style.color = "#664d03";
+            } else {
+                riskBadge.style.backgroundColor = "#d1e7dd";
+                riskBadge.style.color = "#0f5132";
+            }
+
+            // Populate Biomarker Table explicitly
+            const items = (latestData.biomarkers && latestData.biomarkers.length > 0) 
+                ? latestData.biomarkers 
+                : defaultData.biomarkers;
+
+            biomarkerTableBody.innerHTML = items.map(b => `
+                <tr>
+                    <td><strong>${b.name}</strong></td>
+                    <td>${b.impact}</td>
+                </tr>
+            `).join("");
+
+            // PDF Generator Action with full canvas rendering resolution
+            document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+                const element = document.getElementById("reportContent");
+                const pId = latestData.patient_id || 'PAT-045';
+                const pName = (latestData.patient_name || 'Smith').replace(/\s+/g, '_');
+
+                const opt = {
+                    margin:       0.4,
+                    filename:     `HealthAI_Report_${pName}_${pId}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { 
+                        scale: 2, 
+                        useCORS: true, 
+                        logging: false,
+                        scrollX: 0,
+                        scrollY: 0
+                    },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+                    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+
+                html2pdf().set(opt).from(element).save();
+            });
+
+            // Print Action
+            document.getElementById("printReportBtn").addEventListener("click", () => {
+                window.print();
+            });
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

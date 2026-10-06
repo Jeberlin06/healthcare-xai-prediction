@@ -1,0 +1,175 @@
+/* ==========================================================================
+   Responsive Breakpoints & Layout Fixes for All Pages
+   ========================================================================== */
+
+/* Core Dashboard & Grid Structure (Base Defaults) */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  max-height: 340px;
+}
+
+/* Base Nav Toggle State */
+#nav-toggle {
+  display: none;
+}
+
+/* Dynamic Mobile Sidebar Overlay Backdrop */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Large Tablets & Medium Screens (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .grid-4,
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .content-wrapper {
+    padding: 1.5rem;
+  }
+}
+
+/* Tablets & Mobile Navigation Trigger (max-width: 900px) */
+@media (max-width: 900px) {
+  #nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Off-canvas Sidebar */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
+  }
+
+  /* Full-width Main Content Container */
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  header {
+    padding: 0 1rem;
+    gap: 0.5rem;
+  }
+
+  header h2 {
+    font-size: 1.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .content-wrapper {
+    padding: 1rem;
+  }
+
+  /* Grid Adjustments for Forms and Metric Cards */
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Doctor Consult Header Button Alignment */
+  .report-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
+/* Small Mobile Screens (max-width: 640px) */
+@media (max-width: 640px) {
+  /* Single Column Collapse for All Grids */
+  .grid-4,
+  .grid-3,
+  .grid-2,
+  .metrics-grid,
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  header {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 0.75rem 1rem;
+  }
+
+  .hero-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .hero-card h1 {
+    font-size: 1.35rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  /* Input fields full width */
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+  }
+}

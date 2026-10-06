@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - HealthAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item active"><a href="dashboard.html" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2>Clinical System Analytics Dashboard</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary">
+                <i class="fa-solid fa-moon"></i> Toggle Dark Mode
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Metric Stats Grid (Dynamic IDs & Scaled Grid Layout) -->
+            <section class="metrics-grid">
+                <div class="card metric-card primary">
+                    <h4>Total Assessments</h4>
+                    <h2 id="total-assessments">0</h2>
+                </div>
+                <div class="card metric-card danger">
+                    <h4>High Risk Cases</h4>
+                    <h2 id="high-risk-cases">0</h2>
+                </div>
+                <div class="card metric-card success">
+                    <h4>Model Accuracy</h4>
+                    <h2 id="model-accuracy">98.4%</h2>
+                </div>
+                <div class="card metric-card info">
+                    <h4>XAI Explanations</h4>
+                    <h2 id="xai-explanations">0</h2>
+                </div>
+            </section>
+
+            <!-- Dashboard Charts Grid -->
+            <section class="dashboard-grid">
+                <div class="card dashboard-card">
+                    <h3>Disease Risk Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="riskDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card dashboard-card">
+                    <h3>Monthly Screening Volume</h3>
+                    <div class="chart-container">
+                        <canvas id="screeningVolumeChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- JavaScript Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>

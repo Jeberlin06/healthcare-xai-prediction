@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIME Breakdown - HealthAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html" class="active"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2>LIME (Local Interpretable Model-agnostic Explanations)</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary">
+                <i class="fa-solid fa-moon"></i> Toggle Dark Mode
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- LIME Overview Card -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <h3 style="display: flex; align-items: center; gap: 0.5rem; color: #2563eb;">
+                            <i class="fa-solid fa-magnifying-glass-chart"></i> Local Prediction Surrogate Explanation
+                        </h3>
+                        <p style="color: var(--text-muted, #64748b); font-size: 0.95rem; margin-top: 0.25rem;">
+                            LIME builds an interpretable linear surrogate model locally around this specific patient's observation vector.
+                        </p>
+                    </div>
+                    <div id="patientMetaBadge" style="font-size: 0.9rem; font-weight: 600; padding: 0.5rem 1rem; background: var(--bg-main, #f1f5f9); border-radius: var(--radius, 6px);">
+                        Condition: <span id="assessmentName">Evaluating...</span>
+                    </div>
+                </div>
+
+                <!-- Structured Rule-Based List Breakdown -->
+                <div id="limeListContainer" style="background: var(--bg-main, #f8fafc); padding: 1.5rem; border-radius: var(--radius, 8px); border: 1px solid var(--border-color, #e2e8f0); margin-bottom: 1.5rem;">
+                    <!-- Rules inserted dynamically -->
+                </div>
+
+                <!-- Chart Visualization Canvas -->
+                <div id="limeChartContainer" style="text-align: center;">
+                    <canvas id="limeChart" style="max-height: 380px; width: 100%;"></canvas>
+                </div>
+            </div>
+
+            <!-- Interactive Live Weight Adjuster -->
+            <div class="card" style="margin-top: 1.5rem;">
+                <h3 style="display: flex; align-items: center; gap: 0.5rem; color: #2563eb;">
+                    <i class="fa-solid fa-sliders"></i> Dynamic Weight Adjuster
+                </h3>
+                <p style="color: var(--text-muted, #64748b); font-size: 0.9rem; margin-bottom: 1rem;">
+                    Modify the surrogate weights below to see live updates reflected on the chart and feature rule thresholds:
+                </p>
+                <div id="dynamicControls" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+                    <!-- Sliders inserted dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Implementation -->
+    <script>
+        let limeChartInstance = null;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const rawData = localStorage.getItem("latestResult") || localStorage.getItem("latestAssessment") || localStorage.getItem("lastDiagnosis");
+            const limeCanvas = document.getElementById("limeChart");
+            const assessmentName = document.getElementById("assessmentName");
+            const listContainer = document.getElementById("limeListContainer");
+            const controlsContainer = document.getElementById("dynamicControls");
+
+            if (!rawData) {
+                listContainer.innerHTML = `
+                    <p style="color: var(--text-muted, #64748b); text-align: center; padding: 1rem;">
+                        No assessment data found. Please run a diagnostic assessment first.
+                    </p>
+                `;
+                assessmentName.textContent = "None";
+                return;
+            }
+
+            const diagnosis = JSON.parse(rawData);
+            const condition = diagnosis.disease || diagnosis.condition || diagnosis.type || "Clinical Diagnostic";
+            assessmentName.textContent = condition;
+
+            // Extract or build default LIME rule set
+            let limeRules = [];
+            if (diagnosis.lime_rules && diagnosis.lime_rules.length > 0) {
+                limeRules = diagnosis.lime_rules.map(r => ({
+                    rule: r.rule || r.feature,
+                    weight: parseFloat(r.weight || r.impact || 0)
+                }));
+            } else if (condition.toLowerCase().includes("heart")) {
+                limeRules = [
+                    { rule: "Chest Pain (cp) > 1.00", weight: 0.35 },
+                    { rule: "Oldpeak > 1.50", weight: 0.22 },
+                    { rule: "Thalach <= 140.00", weight: 0.15 },
+                    { rule: "Cholesterol > 240.00", weight: 0.09 },
+                    { rule: "Age <= 45.00", weight: -0.12 }
+                ];
+            } else if (condition.toLowerCase().includes("kidney")) {
+                limeRules = [
+                    { rule: "Serum Creatinine > 1.20", weight: 0.38 },
+                    { rule: "Blood Urea > 40.00", weight: 0.25 },
+                    { rule: "Hemoglobin <= 11.00", weight: 0.18 },
+                    { rule: "Albumin > 1.00", weight: 0.10 },
+                    { rule: "Blood Pressure <= 80.00", weight: -0.06 }
+                ];
+            } else {
+                limeRules = [
+                    { rule: "Glucose > 120.00", weight: 0.28 },
+                    { rule: "BMI > 30.00", weight: 0.18 },
+                    { rule: "Insulin > 150.00", weight: 0.12 },
+                    { rule: "Pregnancies > 3.00", weight: 0.05 },
+                    { rule: "Age <= 35.00", weight: -0.08 }
+                ];
+            }
+
+            // Render List Items & Slider Controls
+            renderUI(limeRules);
+
+            // Initialize Chart.js
+            const ctx = limeCanvas.getContext('2d');
+            limeChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: limeRules.map(r => r.rule),
+                    datasets: [{
+                        label: 'LIME Weight (Surrogate Probability Contribution)',
+                        data: limeRules.map(r => r.weight),
+                        backgroundColor: limeRules.map(r => r.weight >= 0 ? 'rgba(239, 68, 68, 0.85)' : 'rgba(16, 185, 129, 0.85)'),
+                        borderColor: limeRules.map(r => r.weight >= 0 ? '#dc2626' : '#059669'),
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => ` Weight: ${context.raw > 0 ? '+' : ''}${context.raw}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Local Weight (Positive = Increases Disease Risk, Negative = Decreases Risk)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            min: -0.8,
+                            max: 0.8
+                        },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+
+            function renderUI(rules) {
+                listContainer.innerHTML = "";
+                controlsContainer.innerHTML = "";
+
+                rules.forEach((item, index) => {
+                    // List Row
+                    const listRow = document.createElement("div");
+                    listRow.style.display = "flex";
+                    listRow.style.justifyContent = "space-between";
+                    listRow.style.alignItems = "center";
+                    listRow.style.marginBottom = index === rules.length - 1 ? "0" : "0.75rem";
+
+                    const isDanger = item.weight >= 0;
+                    const colorClass = isDanger ? "var(--danger, #ef4444)" : "var(--success, #10b981)";
+                    const effectText = isDanger ? "(Pushes Risk High)" : "(Lowers Risk)";
+                    const sign = item.weight > 0 ? "+" : "";
+
+                    listRow.innerHTML = `
+                        <span><strong>${item.rule}</strong> <span style="font-size: 0.85rem; color: var(--text-muted, #64748b);">${effectText}</span></span>
+                        <span id="list-val-${index}" style="color: ${colorClass}; font-weight: bold;">${sign}${item.weight.toFixed(2)}</span>
+                    `;
+                    listContainer.appendChild(listRow);
+
+                    // Slider Control
+                    const controlGroup = document.createElement("div");
+                    controlGroup.style.display = "flex";
+                    controlGroup.style.flexDirection = "column";
+                    controlGroup.style.gap = "0.35rem";
+
+                    controlGroup.innerHTML = `
+                        <label style="font-weight: 600; font-size: 0.85rem; display: flex; justify-content: space-between;">
+                            <span>${item.rule.split(" ")[0]} Rule</span>
+                            <span id="ctrl-val-${index}" style="color: ${colorClass};">${sign}${item.weight.toFixed(2)}</span>
+                        </label>
+                        <input type="range" id="slider-${index}" min="-0.8" max="0.8" step="0.02" value="${item.weight}" style="width: 100%; cursor: pointer;">
+                    `;
+                    controlsContainer.appendChild(controlGroup);
+
+                    // Event Listener for Dynamic Re-rendering
+                    document.getElementById(`slider-${index}`).addEventListener("input", (e) => {
+                        const newVal = parseFloat(e.target.value);
+                        limeRules[index].weight = newVal;
+                        updateVisuals(index, newVal);
+                    });
+                });
+            }
+
+            function updateVisuals(index, value) {
+                const isDanger = value >= 0;
+                const colorHex = isDanger ? "var(--danger, #ef4444)" : "var(--success, #10b981)";
+                const sign = value > 0 ? "+" : "";
+
+                // Update text elements
+                const listVal = document.getElementById(`list-val-${index}`);
+                const ctrlVal = document.getElementById(`ctrl-val-${index}`);
+
+                if (listVal) {
+                    listVal.textContent = `${sign}${value.toFixed(2)}`;
+                    listVal.style.color = colorHex;
+                }
+                if (ctrlVal) {
+                    ctrlVal.textContent = `${sign}${value.toFixed(2)}`;
+                    ctrlVal.style.color = colorHex;
+                }
+
+                // Update Chart.js data
+                if (limeChartInstance) {
+                    limeChartInstance.data.datasets[0].data = limeRules.map(r => r.weight);
+                    limeChartInstance.data.datasets[0].backgroundColor = limeRules.map(r => r.weight >= 0 ? 'rgba(239, 68, 68, 0.85)' : 'rgba(16, 185, 129, 0.85)');
+                    limeChartInstance.data.datasets[0].borderColor = limeRules.map(r => r.weight >= 0 ? '#dc2626' : '#059669');
+                    limeChartInstance.update();
+                }
+            }
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

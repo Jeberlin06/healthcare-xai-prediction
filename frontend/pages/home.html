@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthAI - Early Disease Prediction & XAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fa-solid fa-heart-pulse"></i> HealthAI XAI
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html" class="active"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <!-- Responsive Nav Toggle Button -->
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2>Early Disease Prediction System</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary">
+                <i class="fa-solid fa-moon"></i> Toggle Dark Mode
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Hero Card -->
+            <div class="card hero-card" style="background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%); color: white;">
+                <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Explainable AI for Early Disease Detection</h1>
+                <p style="margin-bottom: 1.5rem; opacity: 0.9;">Predict clinical risk for Diabetes, Heart, and Kidney diseases using machine learning backed by SHAP & LIME interpretability.</p>
+                <div class="hero-actions" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a href="diabetes-predict.html" class="btn" style="background: white; color: #2563eb;">Start Diabetes Assessment</a>
+                    <a href="heart-predict.html" class="btn btn-secondary" style="color: white; border-color: rgba(255,255,255,0.4);">Heart Assessment</a>
+                </div>
+            </div>
+
+            <!-- Diagnostic Quick Links Grid -->
+            <h3 style="margin-bottom: 1rem;">Select Assessment Module</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <i class="fa-solid fa-syringe" style="font-size: 2rem; color: #2563eb; margin-bottom: 1rem;"></i>
+                    <h4>Diabetes Risk Assessment</h4>
+                    <p style="color: var(--text-muted); margin: 0.5rem 0 1rem 0; font-size: 0.9rem;">Analyze Glucose, Insulin, BMI, and Age parameters.</p>
+                    <a href="diabetes-predict.html" class="btn btn-primary" style="width: 100%; justify-content: center;">Assess Diabetes</a>
+                </div>
+
+                <div class="card">
+                    <i class="fa-solid fa-heart-pulse" style="font-size: 2rem; color: #ef4444; margin-bottom: 1rem;"></i>
+                    <h4>Heart Disease Assessment</h4>
+                    <p style="color: var(--text-muted); margin: 0.5rem 0 1rem 0; font-size: 0.9rem;">Analyze Chest Pain, BP, Cholesterol, and ECG metrics.</p>
+                    <a href="heart-predict.html" class="btn btn-primary" style="width: 100%; justify-content: center; background-color: #ef4444; border-color: #ef4444;">Assess Heart Disease</a>
+                </div>
+
+                <div class="card">
+                    <i class="fa-solid fa-microscope" style="font-size: 2rem; color: #10b981; margin-bottom: 1rem;"></i>
+                    <h4>Kidney Disease Assessment</h4>
+                    <p style="color: var(--text-muted); margin: 0.5rem 0 1rem 0; font-size: 0.9rem;">Analyze Serum Creatinine, Hemoglobin, and Blood Urea.</p>
+                    <a href="kidney-predict.html" class="btn btn-primary" style="width: 100%; justify-content: center; background-color: #10b981; border-color: #10b981;">Assess Kidney Health</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Database & Local files
+*.db
+*.sqlite3
+.env
+
+# Sensitive config
+js/config.js
+frontend/js/config.js

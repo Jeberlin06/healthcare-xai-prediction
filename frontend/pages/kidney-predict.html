@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronic Kidney Disease Risk - HealthAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-main, #212529);
+        }
+        .form-group input {
+            padding: 0.65rem;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            background: var(--bg-card, #fff);
+            color: var(--text-main, #212529);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item active"><a href="kidney-predict.html" class="active"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2>Chronic Kidney Disease Risk Assessment</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary">
+                <i class="fa-solid fa-moon"></i> Toggle Dark Mode
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="card">
+                <h3><i class="fa-solid fa-vial-circle-check"></i> Renal Function Diagnostics</h3>
+                <p style="color: var(--text-muted, #6c757d); margin-bottom: 1.5rem;">
+                    Enter Serum Creatinine, Blood Urea, and GFR metrics to compute CKD Risk.
+                </p>
+
+                <form id="kidneyForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="patientName">Patient Name</label>
+                            <input type="text" id="patientName" placeholder="e.g. Robert Taylor" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="patientId">Patient ID</label>
+                            <input type="text" id="patientId" placeholder="PAT-001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="creatinine">Serum Creatinine (mg/dL)</label>
+                            <input type="number" step="0.1" id="creatinine" placeholder="1.2" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bloodUrea">Blood Urea (mg/dL)</label>
+                            <input type="number" id="bloodUrea" placeholder="36" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input type="number" id="age" placeholder="58" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bp">Blood Pressure (mmHg)</label>
+                            <input type="number" id="bp" placeholder="130" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-calculator"></i> Run Renal Risk Evaluation
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        function getNextPatientId() {
+            const records = JSON.parse(localStorage.getItem("patientRecords")) || [];
+            const nextIndex = records.length + 1;
+            return `PAT-${String(nextIndex).padStart(3, '0')}`;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const idInput = document.getElementById("patientId");
+            idInput.value = getNextPatientId();
+
+            document.getElementById("kidneyForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById("patientName").value.trim() || "Anonymous Patient";
+                const pId = document.getElementById("patientId").value.trim() || getNextPatientId();
+                const creat = parseFloat(document.getElementById("creatinine").value);
+                const urea = parseFloat(document.getElementById("bloodUrea").value);
+                const age = parseInt(document.getElementById("age").value);
+                const bp = parseFloat(document.getElementById("bp").value);
+
+                // CKD calculation formula
+                let riskScore = Math.min(99, Math.max(8, Math.floor((creat * 28) + (urea * 0.4) + (age * 0.2) + (bp * 0.1))));
+                let riskLevel = "Low Risk";
+                if (riskScore > 70) riskLevel = "High Risk";
+                else if (riskScore > 40) riskLevel = "Moderate Risk";
+
+                const assessmentObj = {
+                    id: pId,
+                    patient_id: pId,
+                    patientName: name,
+                    patient_name: name,
+                    disease: "Chronic Kidney Disease",
+                    assessmentType: "Chronic Kidney Disease",
+                    riskScore: riskScore,
+                    risk_probability: riskScore,
+                    riskLevel: riskLevel,
+                    classification: riskLevel,
+                    date: new Date().toISOString().split('T')[0],
+                    timestamp: new Date().toLocaleString(),
+                    biomarkers: [
+                        { name: "Serum Creatinine", impact: `${creat} mg/dL` },
+                        { name: "Blood Urea", impact: `${urea} mg/dL` },
+                        { name: "Patient Age", impact: `${age} years` },
+                        { name: "Blood Pressure", impact: `${bp} mmHg` }
+                    ]
+                };
+
+                localStorage.setItem("latestResult", JSON.stringify(assessmentObj));
+
+                let records = JSON.parse(localStorage.getItem("patientRecords")) || [];
+                records.unshift(assessmentObj);
+                localStorage.setItem("patientRecords", JSON.stringify(records));
+
+                window.location.href = "diagnosis-result.html";
+            });
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

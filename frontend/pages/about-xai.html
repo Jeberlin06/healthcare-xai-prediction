@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Explainable AI - HealthAI XAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html" class="active"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <div class="main-content">
+        <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2 style="margin: 0;">Understanding Explainable AI (XAI) in Healthcare</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary"><i class="fa-solid fa-moon"></i> Toggle Dark Mode</button>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3><i class="fa-solid fa-brain" style="color: var(--primary, #0d6efd);"></i> Why Explainability Matters</h3>
+                <p style="margin-top: 0.5rem; line-height: 1.6; color: var(--text-muted, #6c757d);">
+                    Traditional black-box machine learning models deliver high predictive accuracy but offer little insight into <em>why</em> a decision was made. In clinical environments, understanding feature attribution is critical for establishing medical trust and supporting doctor decision-making.
+                </p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4><i class="fa-solid fa-chart-column" style="color: var(--accent, #0ea5e9);"></i> SHAP (Shapley Additive exPlanations)</h4>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted, #6c757d);">
+                        Grounded in cooperative game theory, SHAP calculates the exact additive contribution of each biomarker toward the final risk output, guaranteeing consistency and local accuracy.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h4><i class="fa-solid fa-magnifying-glass" style="color: var(--warning, #f59e0b);"></i> LIME (Local Surrogate Models)</h4>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted, #6c757d);">
+                        LIME approximates the black-box model locally around a specific patient's data point by fitting an interpretable sparse linear decision boundary.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/main.js"></script>
+</body>
+</html>

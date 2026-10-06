@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHAP Analysis - HealthAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .shap-container {
+            position: relative;
+            width: 100%;
+            min-height: 380px;
+            margin-top: 1rem;
+        }
+        .condition-badge {
+            display: inline-block;
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item active"><a href="shap-explain.html" class="active"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2>SHAP Feature Attribution</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary">
+                <i class="fa-solid fa-moon"></i> Toggle Dark Mode
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="card">
+                <p style="color: var(--text-muted, #6c757d); font-size: 0.95rem; margin-bottom: 0.75rem;">
+                    Shapley Additive exPlanations quantify how individual physiological factors shift prediction outcomes from baseline.
+                </p>
+
+                <div class="condition-badge" id="conditionDisplay">
+                    Condition: Chronic Kidney Disease
+                </div>
+
+                <div class="shap-container">
+                    <canvas id="shapChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const ctx = document.getElementById('shapChart').getContext('2d');
+            
+            // Read latest active diagnostic result from localStorage or default
+            const latestData = JSON.parse(localStorage.getItem("latestResult")) || {
+                disease: "Chronic Kidney Disease",
+                shapData: [
+                    { feature: "Serum Creatinine", value: 0.42 },
+                    { feature: "Blood Urea", value: 0.35 },
+                    { feature: "Patient Age", value: 0.22 },
+                    { feature: "Blood Pressure", value: -0.15 }
+                ]
+            };
+
+            // Set condition title
+            document.getElementById("conditionDisplay").innerText = `Condition: ${latestData.disease || 'Chronic Kidney Disease'}`;
+
+            const shapList = latestData.shapData || [
+                { feature: "Serum Creatinine", value: 0.42 },
+                { feature: "Blood Urea", value: 0.35 },
+                { feature: "Patient Age", value: 0.22 },
+                { feature: "Blood Pressure", value: -0.15 }
+            ];
+
+            const labels = shapList.map(item => item.feature);
+            const values = shapList.map(item => item.value);
+            const backgroundColors = values.map(val => val >= 0 ? '#ea5455' : '#4267B2');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'SHAP Value',
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderRadius: 4,
+                        barThickness: 28
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => ` SHAP Value: ${context.raw > 0 ? '+' : ''}${context.raw}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'SHAP Value (Positive = Risk Increase, Negative = Risk Decrease)',
+                                font: { weight: '600', size: 12 }
+                            },
+                            grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                            suggestedMin: -0.5,
+                            suggestedMax: 0.5
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: {
+                                font: { size: 13, weight: '500' }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

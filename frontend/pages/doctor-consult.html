@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Report & Consultation - HealthAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        .consult-wrapper {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 1.5rem;
+        }
+
+        .patient-selector-card {
+            background-color: var(--bg-card, #ffffff);
+            border-radius: 10px;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color, #e2e8f0);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            height: fit-content;
+        }
+
+        .report-paper {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 2.5rem;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            color: #1e293b;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .report-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            background-color: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-item label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .meta-item span {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .clinical-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .clinical-section h4 {
+            font-size: 1rem;
+            color: #334155;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .biomarker-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        .biomarker-table th, .biomarker-table td {
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .biomarker-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+        }
+
+        .doctor-notes-area {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+            margin-top: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.35rem 0.65rem;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        .badge-high { background-color: #f8d7da; color: #842029; }
+        .badge-mod { background-color: #fff3cd; color: #664d03; }
+        .badge-low { background-color: #d1e7dd; color: #0f5132; }
+
+        @media (max-width: 992px) {
+            .consult-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body { background: #fff !important; }
+            .sidebar, header, .patient-selector-card, .action-buttons { display: none !important; }
+            .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            .report-paper { border: none !important; box-shadow: none !important; padding: 0 !important; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item"><a href="batch-predict.html"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item active"><a href="doctor-consult.html" class="active"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2>Doctor Consultation & Clinical Summary</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary">
+                <i class="fa-solid fa-moon"></i> Toggle Dark Mode
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="consult-wrapper">
+                
+                <!-- Dynamic Patient Selector -->
+                <div class="patient-selector-card">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem;"><i class="fa-solid fa-hospital-user"></i> Select Patient Record</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.4rem;">Patient Search / Select</label>
+                        <select id="patientSelect" class="form-control" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="action-buttons" style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button id="saveNotesBtn" class="btn btn-primary" style="width: 100%;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Doctor Notes
+                        </button>
+                        <button id="downloadPdfBtn" class="btn btn-secondary" style="width: 100%;">
+                            <i class="fa-solid fa-file-pdf"></i> Export Clinical Report
+                        </button>
+                        <button id="printReportBtn" class="btn btn-secondary" style="width: 100%;">
+                            <i class="fa-solid fa-print"></i> Print Consultation
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Printable/Exportable Report Paper -->
+                <div class="report-paper" id="consultReportContent">
+                    <div class="report-header">
+                        <div class="report-title">
+                            <i class="fa-solid fa-user-doctor"></i> HealthAI Clinical Consultation
+                        </div>
+                        <div style="text-align: right; font-size: 0.85rem; color: #64748b;">
+                            <div><strong>Physician Review Copy</strong></div>
+                            <div id="consultDate">Date: 2026-10-06</div>
+                        </div>
+                    </div>
+
+                    <!-- Meta details -->
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <label>Patient Name</label>
+                            <span id="docPatientName">Smith</span>
+                        </div>
+                        <div class="meta-item">
+                            <label>Patient ID</label>
+                            <span id="docPatientId">PAT-045</span>
+                        </div>
+                        <div class="meta-item">
+                            <label>Assessed Disease Condition</label>
+                            <span id="docDisease">Coronary Heart Disease</span>
+                        </div>
+                        <div class="meta-item">
+                            <label>AI Risk Score & Classification</label>
+                            <div>
+                                <span id="docRiskScore" style="font-size: 1.1rem; font-weight: 800; color: #2563eb; margin-right: 0.5rem;">80%</span>
+                                <span id="docRiskBadge" class="badge badge-high">High Risk</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Biomarker Section -->
+                    <div class="clinical-section">
+                        <h4><i class="fa-solid fa-microscope"></i> Explainable Biomarker Breakdown (XAI Impact)</h4>
+                        <table class="biomarker-table">
+                            <thead>
+                                <tr>
+                                    <th>Biomarker / Clinical Parameter</th>
+                                    <th>Measured Value / Impact Factor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="docBiomarkerBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Physician Clinical Impression Notes -->
+                    <div class="clinical-section">
+                        <h4><i class="fa-solid fa-notes-medical"></i> Physician Assessment & Recommendations</h4>
+                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem;">
+                            Enter medical recommendations, prescription guidelines, or lifestyle interventions below. Saved notes automatically link to this patient record.
+                        </p>
+                        <textarea id="doctorNotesInput" class="doctor-notes-area" placeholder="Write clinical notes here... (e.g. Prescribed Atorvastatin 20mg, ordered follow-up ECG in 4 weeks)"></textarea>
+                    </div>
+
+                    <div style="text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 2rem; border-top: 1px dashed #cbd5e1; padding-top: 1rem;">
+                        This document includes AI-assisted clinical decision assistance from HealthAI. Final medical judgement rests with the attending physician.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const patientSelect = document.getElementById("patientSelect");
+            const docPatientName = document.getElementById("docPatientName");
+            const docPatientId = document.getElementById("docPatientId");
+            const docDisease = document.getElementById("docDisease");
+            const docRiskScore = document.getElementById("docRiskScore");
+            const docRiskBadge = document.getElementById("docRiskBadge");
+            const docBiomarkerBody = document.getElementById("docBiomarkerBody");
+            const doctorNotesInput = document.getElementById("doctorNotesInput");
+            const consultDate = document.getElementById("consultDate");
+
+            // Set current date
+            const today = new Date().toISOString().split('T')[0];
+            consultDate.innerText = `Date: ${today}`;
+
+            // Default fallback dataset
+            const defaultRecords = [
+                {
+                    patientName: "Smith",
+                    patientId: "PAT-045",
+                    disease: "Coronary Heart Disease",
+                    riskScore: 80,
+                    riskLevel: "High Risk",
+                    notes: "High resting blood pressure observed. Patient advised salt restriction and cardiovascular follow-up.",
+                    biomarkers: [
+                        { name: "Resting Blood Pressure", impact: "170 mmHg" },
+                        { name: "Serum Cholesterol", impact: "120 mg/dL" },
+                        { name: "Patient Age", impact: "67 years" },
+                        { name: "Max Heart Rate", impact: "120 bpm" }
+                    ]
+                },
+                {
+                    patientName: "Doe",
+                    patientId: "PAT-001",
+                    disease: "Type 2 Diabetes Risk",
+                    riskScore: 83,
+                    riskLevel: "High Risk",
+                    notes: "Glucose level elevated. Monitored for insulin resistance.",
+                    biomarkers: [
+                        { name: "Primary Biomarker Value", impact: "150" },
+                        { name: "Patient Age", impact: "56 years" }
+                    ]
+                }
+            ];
+
+            // Fetch patient records and latest result from LocalStorage
+            let records = JSON.parse(localStorage.getItem("patientRecords")) || defaultRecords;
+            const latestResult = JSON.parse(localStorage.getItem("latestResult"));
+
+            // If a recent diagnosis exists, ensure it is in records list
+            if (latestResult) {
+                const normLatest = {
+                    patientName: latestResult.patient_name || latestResult.patientName || "Smith",
+                    patientId: latestResult.patient_id || latestResult.patientId || "PAT-045",
+                    disease: latestResult.disease || "Coronary Heart Disease",
+                    riskScore: latestResult.riskScore ?? 80,
+                    riskLevel: latestResult.riskLevel || "High Risk",
+                    notes: latestResult.notes || "",
+                    biomarkers: latestResult.biomarkers || []
+                };
+
+                const index = records.findIndex(r => (r.patientId || r.patient_id) === normLatest.patientId);
+                if (index >= 0) {
+                    records[index] = { ...records[index], ...normLatest };
+                } else {
+                    records.unshift(normLatest);
+                }
+            }
+
+            // Populate Dropdown
+            patientSelect.innerHTML = records.map((r, i) => `
+                <option value="${i}">
+                    ${r.patientName || r.patient_name} (${r.patientId || r.patient_id}) - ${r.disease || 'Assessment'}
+                </option>
+            `).join("");
+
+            // Render details when a patient is selected
+            function renderPatientConsult(index) {
+                const current = records[index];
+                if (!current) return;
+
+                const name = current.patientName || current.patient_name || "Unknown";
+                const id = current.patientId || current.patient_id || "N/A";
+                const disease = current.disease || "Clinical Assessment";
+                const score = current.riskScore ?? 0;
+                const level = current.riskLevel || "Low Risk";
+
+                docPatientName.innerText = name;
+                docPatientId.innerText = id;
+                docDisease.innerText = disease;
+                docRiskScore.innerText = `${score}%`;
+                
+                docRiskBadge.innerText = level;
+                if (level.toLowerCase().includes("high")) {
+                    docRiskBadge.className = "badge badge-high";
+                } else if (level.toLowerCase().includes("mod")) {
+                    docRiskBadge.className = "badge badge-mod";
+                } else {
+                    docRiskBadge.className = "badge badge-low";
+                }
+
+                // Render Biomarkers
+                const biomarkers = current.biomarkers || [
+                    { name: "Primary Clinical Biomarker", impact: "Elevated" },
+                    { name: "Patient Age", impact: "Recorded" }
+                ];
+
+                docBiomarkerBody.innerHTML = biomarkers.map(b => `
+                    <tr>
+                        <td><strong>${b.name}</strong></td>
+                        <td>${b.impact}</td>
+                    </tr>
+                `).join("");
+
+                // Render Physician Notes
+                doctorNotesInput.value = current.notes || "";
+            }
+
+            // Initial load
+            renderPatientConsult(0);
+
+            // Change event for dropdown
+            patientSelect.addEventListener("change", (e) => {
+                renderPatientConsult(e.target.value);
+            });
+
+            // Save Doctor Notes to LocalStorage
+            document.getElementById("saveNotesBtn").addEventListener("click", () => {
+                const selectedIndex = patientSelect.value;
+                if (records[selectedIndex]) {
+                    records[selectedIndex].notes = doctorNotesInput.value;
+                    localStorage.setItem("patientRecords", JSON.stringify(records));
+                    alert(`Clinical consultation notes saved for ${docPatientName.innerText} (${docPatientId.innerText})!`);
+                }
+            });
+
+            // PDF Export Action
+            document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+                const element = document.getElementById("consultReportContent");
+                const pId = docPatientId.innerText.replace(/\s+/g, '_');
+                const pName = docPatientName.innerText.replace(/\s+/g, '_');
+
+                const opt = {
+                    margin:       0.4,
+                    filename:     `Doctor_Consultation_${pName}_${pId}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).save();
+            });
+
+            // Print Action
+            document.getElementById("printReportBtn").addEventListener("click", () => {
+                window.print();
+            });
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

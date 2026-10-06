@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Upload & Multi-Patient Prediction - HealthAI</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .upload-card-box {
+            background-color: var(--card-bg, #ffffff);
+            border: 2px dashed #2563eb;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .upload-card-box:hover {
+            background-color: #f0f6ff;
+        }
+
+        .upload-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-color, #333);
+        }
+
+        .form-control {
+            padding: 0.55rem 0.75rem;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .records-table th, .records-table td {
+            padding: 0.75rem 0.85rem;
+            border: 1px solid var(--border-color, #dee2e6);
+            text-align: left;
+        }
+
+        .records-table th {
+            background-color: var(--bg-main, #f8f9fa);
+        }
+
+        .badge {
+            padding: 0.35rem 0.65rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .badge-high { background-color: #f8d7da; color: #842029; }
+        .badge-mod { background-color: #fff3cd; color: #664d03; }
+        .badge-low { background-color: #d1e7dd; color: #0f5132; }
+        .badge-pending { background-color: #e2e8f0; color: #475569; }
+
+        .toolbar-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-heart-pulse"></i> HealthAI XAI</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="home.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li class="nav-item"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="diabetes-predict.html"><i class="fa-solid fa-syringe"></i> Diabetes Risk</a></li>
+            <li class="nav-item"><a href="heart-predict.html"><i class="fa-solid fa-heart-crack"></i> Heart Disease</a></li>
+            <li class="nav-item"><a href="kidney-predict.html"><i class="fa-solid fa-vial-circle-check"></i> Kidney Disease</a></li>
+            <li class="nav-item"><a href="diagnosis-result.html"><i class="fa-solid fa-file-medical"></i> Diagnostics Result</a></li>
+            <li class="nav-item"><a href="shap-explain.html"><i class="fa-solid fa-brain"></i> SHAP Analysis</a></li>
+            <li class="nav-item"><a href="lime-explain.html"><i class="fa-solid fa-magnifying-glass-chart"></i> LIME Breakdown</a></li>
+            <li class="nav-item"><a href="patient-records.html"><i class="fa-solid fa-hospital-user"></i> Patient Records</a></li>
+            <li class="nav-item active"><a href="batch-predict.html" class="active"><i class="fa-solid fa-file-csv"></i> Batch Upload</a></li>
+            <li class="nav-item"><a href="model-metrics.html"><i class="fa-solid fa-square-poll-vertical"></i> Model Performance</a></li>
+            <li class="nav-item"><a href="doctor-consult.html"><i class="fa-solid fa-user-doctor"></i> Doctor Report</a></li>
+            <li class="nav-item"><a href="about-xai.html"><i class="fa-solid fa-circle-info"></i> About XAI</a></li>
+            <li class="nav-item"><a href="help-faq.html"><i class="fa-solid fa-circle-question"></i> Help & FAQ</a></li>
+            <li class="nav-item"><a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="nav-toggle" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2>Batch Prediction & CSV Upload</h2>
+            </div>
+            <button id="theme-toggle" class="btn btn-secondary">
+                <i class="fa-solid fa-moon"></i> Toggle Dark Mode
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            
+            <!-- CSV File Upload Card -->
+            <div class="upload-card-box" id="dropZone">
+                <i class="fa-solid fa-file-csv" style="font-size: 2.5rem; color: #2563eb; margin-bottom: 0.5rem;"></i>
+                <h3 style="margin: 0 0 0.4rem 0; font-size: 1.1rem;">Upload Patient CSV File</h3>
+                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem;">
+                    Drag and drop your <code>.csv</code> file here or click to select file
+                </p>
+                <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                
+                <div class="upload-actions">
+                    <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                        <i class="fa-solid fa-upload"></i> Browse CSV File
+                    </button>
+                    <button id="downloadTemplateBtn" class="btn btn-secondary">
+                        <i class="fa-solid fa-download"></i> Download CSV Template
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add Single Patient Manual Form -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1rem; margin-bottom: 1rem;"><i class="fa-solid fa-user-plus"></i> Manual Queue Addition</h3>
+                <form id="addQueueForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Patient Name</label>
+                            <input type="text" id="patientName" class="form-control" placeholder="e.g. John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Patient ID</label>
+                            <input type="text" id="patientId" class="form-control" placeholder="e.g. PAT-101" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Assessment Type</label>
+                            <select id="assessmentType" class="form-control">
+                                <option value="Type 2 Diabetes Risk">Type 2 Diabetes Risk</option>
+                                <option value="Coronary Heart Disease">Coronary Heart Disease</option>
+                                <option value="Chronic Kidney Disease">Chronic Kidney Disease</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Primary Value (Glucose / BP / Creatinine)</label>
+                            <input type="number" id="biomarkerVal" class="form-control" placeholder="120" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="number" id="patientAge" class="form-control" placeholder="45" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-secondary" style="margin-top: 0.5rem;">
+                        <i class="fa-solid fa-plus"></i> Add to Queue
+                    </button>
+                </form>
+            </div>
+
+            <!-- Batch Queue and Diagnostic Actions -->
+            <div class="card">
+                <div class="toolbar-flex">
+                    <h3 style="margin: 0;"><i class="fa-solid fa-list-check"></i> Batch Queue & Assessment Results</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="runDiagnosticsBtn" class="btn btn-primary">
+                            <i class="fa-solid fa-play"></i> Run Batch Diagnostics
+                        </button>
+                        <button id="clearQueueBtn" class="btn btn-secondary">
+                            <i class="fa-solid fa-trash"></i> Clear Queue
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Patient Name</th>
+                                <th>Patient ID</th>
+                                <th>Assessment Type</th>
+                                <th>Key Biomarker Value</th>
+                                <th>Age</th>
+                                <th>Risk Score</th>
+                                <th>Classification</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchTableBody">
+                            <!-- Queue rows populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const addQueueForm = document.getElementById("addQueueForm");
+            const batchTableBody = document.getElementById("batchTableBody");
+            const runDiagnosticsBtn = document.getElementById("runDiagnosticsBtn");
+            const clearQueueBtn = document.getElementById("clearQueueBtn");
+            const csvFileInput = document.getElementById("csvFileInput");
+            const dropZone = document.getElementById("dropZone");
+            const downloadTemplateBtn = document.getElementById("downloadTemplateBtn");
+
+            // Batch Queue items from LocalStorage
+            let batchQueue = JSON.parse(localStorage.getItem("batchQueue")) || [];
+
+            function renderQueue() {
+                if (batchQueue.length === 0) {
+                    batchTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align: center; color: var(--text-muted, #6c757d); padding: 1.5rem;">
+                                No items in batch queue. Upload a CSV file or add entries above.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                batchTableBody.innerHTML = batchQueue.map((item, idx) => {
+                    let badgeClass = "badge-pending";
+                    if (item.riskLevel.includes("High")) badgeClass = "badge-high";
+                    else if (item.riskLevel.includes("Mod")) badgeClass = "badge-mod";
+                    else if (item.riskLevel.includes("Low")) badgeClass = "badge-low";
+
+                    const actionHtml = item.riskScore !== null ? `
+                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="viewDiagnosticResult(${idx})">
+                            <i class="fa-solid fa-file-lines"></i> View
+                        </button>
+                    ` : `-`;
+
+                    return `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td><strong>${item.patientName}</strong></td>
+                            <td><code>${item.patientId}</code></td>
+                            <td>${item.disease}</td>
+                            <td>${item.biomarkerVal}</td>
+                            <td>${item.age}</td>
+                            <td><strong>${item.riskScore !== null ? item.riskScore + '%' : '-'}</strong></td>
+                            <td><span class="badge ${badgeClass}">${item.riskLevel}</span></td>
+                            <td>${actionHtml}</td>
+                        </tr>
+                    `;
+                }).join("");
+
+                localStorage.setItem("batchQueue", JSON.stringify(batchQueue));
+            }
+
+            // CSV Parsing Logic with Flexible Column Name Matching
+            function parseCSV(text) {
+                const lines = text.split(/\r\n|\n/).map(l => l.trim()).filter(l => l.length > 0);
+                if (lines.length < 2) return [];
+
+                const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, ''));
+                
+                const getColIdx = (possibleNames) => {
+                    return headers.findIndex(h => possibleNames.some(p => h.toLowerCase() === p.toLowerCase()));
+                };
+
+                const nameIdx = getColIdx(["Patient Name", "Name", "patient_name", "PatientName"]);
+                const idIdx = getColIdx(["Patient ID", "ID", "patient_id", "PatientID"]);
+                const typeIdx = getColIdx(["Assessment Type", "AssessmentType", "Disease", "Type"]);
+                const valIdx = getColIdx(["Primary Value", "PrimaryValue", "Biomarker", "Value"]);
+                const ageIdx = getColIdx(["Age", "Patient Age"]);
+
+                const parsed = [];
+
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(',').map(c => c.trim().replace(/^["']|["']$/g, ''));
+                    if (cols.length < 2) continue;
+
+                    parsed.push({
+                        patientName: nameIdx !== -1 && cols[nameIdx] ? cols[nameIdx] : `Patient ${i}`,
+                        patientId: idIdx !== -1 && cols[idIdx] ? cols[idIdx] : `PAT-${100 + i}`,
+                        disease: typeIdx !== -1 && cols[typeIdx] ? cols[typeIdx] : "Type 2 Diabetes Risk",
+                        biomarkerVal: valIdx !== -1 && cols[valIdx] ? cols[valIdx] : "120",
+                        age: ageIdx !== -1 && cols[ageIdx] ? cols[ageIdx] : "45",
+                        riskScore: null,
+                        riskLevel: "Pending"
+                    });
+                }
+
+                return parsed;
+            }
+
+            // CSV File Selection Listener
+            csvFileInput.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const parsedData = parseCSV(event.target.result);
+                    if (parsedData.length > 0) {
+                        batchQueue = parsedData;
+                        renderQueue();
+                        alert(`Successfully imported ${parsedData.length} patients from CSV! Click "Run Batch Diagnostics" to process.`);
+                    } else {
+                        alert("Could not parse CSV file. Please check column header titles.");
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            // Download CSV Template Button
+            downloadTemplateBtn.addEventListener("click", () => {
+                const csvContent = "data:text/csv;charset=utf-8," 
+                    + "Patient Name,Patient ID,Assessment Type,Primary Value,Age\n"
+                    + "John Doe,PAT-101,Type 2 Diabetes Risk,165,52\n"
+                    + "Sarah Connor,PAT-102,Coronary Heart Disease,175,61\n"
+                    + "Michael Scott,PAT-103,Chronic Kidney Disease,140,48\n"
+                    + "Emma Watson,PAT-104,Type 2 Diabetes Risk,98,34\n"
+                    + "Robert Bruce,PAT-105,Coronary Heart Disease,130,59";
+                    
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "patient_batch_sample.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            // Drag and Drop Event Listeners
+            dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.style.borderColor = "#1d4ed8"; });
+            dropZone.addEventListener("dragleave", () => { dropZone.style.borderColor = "#2563eb"; });
+            dropZone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = "#2563eb";
+                if (e.dataTransfer.files.length) {
+                    csvFileInput.files = e.dataTransfer.files;
+                    csvFileInput.dispatchEvent(new Event('change'));
+                }
+            });
+
+            // Manual Form Submission
+            addQueueForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const newItem = {
+                    patientName: document.getElementById("patientName").value,
+                    patientId: document.getElementById("patientId").value,
+                    disease: document.getElementById("assessmentType").value,
+                    biomarkerVal: document.getElementById("biomarkerVal").value,
+                    age: document.getElementById("patientAge").value,
+                    riskScore: null,
+                    riskLevel: "Pending"
+                };
+
+                batchQueue.push(newItem);
+                renderQueue();
+                addQueueForm.reset();
+            });
+
+            // Run Batch Diagnostics & Save to Patient Records
+            runDiagnosticsBtn.addEventListener("click", () => {
+                if (batchQueue.length === 0) {
+                    alert("Batch queue is empty.");
+                    return;
+                }
+
+                let existingRecords = JSON.parse(localStorage.getItem("patientRecords")) || [];
+                const today = new Date().toISOString().split('T')[0];
+
+                batchQueue.forEach(item => {
+                    const val = parseFloat(item.biomarkerVal) || 100;
+                    let score = Math.min(99, Math.max(15, Math.round((val / 180) * 100)));
+                    let level = "Low Risk";
+
+                    if (score >= 70) level = "High Risk";
+                    else if (score >= 40) level = "Moderate Risk";
+
+                    item.riskScore = score;
+                    item.riskLevel = level;
+
+                    // Sync patient record preserving full name
+                    const recordEntry = {
+                        patientName: item.patientName,
+                        patientId: item.patientId,
+                        disease: item.disease,
+                        riskScore: score,
+                        riskLevel: level,
+                        date: today,
+                        biomarkers: [
+                            { name: "Primary Biomarker Value", impact: `${item.biomarkerVal}` },
+                            { name: "Patient Age", impact: `${item.age} years` }
+                        ]
+                    };
+
+                    const existingIndex = existingRecords.findIndex(r => (r.patientId || r.patient_id) === item.patientId);
+                    if (existingIndex >= 0) {
+                        existingRecords[existingIndex] = recordEntry;
+                    } else {
+                        existingRecords.unshift(recordEntry);
+                    }
+                });
+
+                localStorage.setItem("patientRecords", JSON.stringify(existingRecords));
+                renderQueue();
+                alert("Batch Diagnostics complete! All records have been updated in Patient Records.");
+            });
+
+            // Clear Queue
+            clearQueueBtn.addEventListener("click", () => {
+                batchQueue = [];
+                localStorage.removeItem("batchQueue");
+                renderQueue();
+            });
+
+            // Open Single Patient Diagnosis Result
+            window.viewDiagnosticResult = function(index) {
+                const item = batchQueue[index];
+                if (!item) return;
+
+                const selectedData = {
+                    patient_name: item.patientName,
+                    patient_id: item.patientId,
+                    disease: item.disease,
+                    riskScore: item.riskScore,
+                    riskLevel: item.riskLevel,
+                    timestamp: new Date().toISOString().split('T')[0],
+                    biomarkers: [
+                        { name: "Primary Biomarker Value", impact: `${item.biomarkerVal}` },
+                        { name: "Patient Age", impact: `${item.age} years` }
+                    ]
+                };
+
+                localStorage.setItem("latestResult", JSON.stringify(selectedData));
+                window.location.href = "diagnosis-result.html";
+            };
+
+            renderQueue();
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>
