@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 import pandas as pd
 
-from .database import engine, Base, get_db
+from database import engine, Base, get_db
 from . import models, crud
 
 Base.metadata.create_all(bind=engine)
