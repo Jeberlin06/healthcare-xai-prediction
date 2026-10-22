@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from .models import PatientRecord
+from models import PatientRecord
 
 def save_batch_records(db: Session, records: list):
     db_records = []
